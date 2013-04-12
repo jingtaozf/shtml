@@ -55,6 +55,24 @@ Keyword arguments will only be accepted if TEMPLATE is a PATHNAME."))
   (with-input-from-string (*standard-input* string)
     (%create-template-printer-aux nil nil)))
 
+(defun uglify-js (in-path)
+  (let ((out-path (format nil "/tmp/shtml/js-compress/~a" in-path)))
+    (ensure-directories-exist out-path)
+    (with-open-file (*standard-output* out-path
+                     :direction :output :if-does-not-exist :create :if-exists :supersede
+                     :external-format :utf-8)
+      (loop for c across (cl-uglify-js:ast-gen-code
+                          (cl-uglify-js:ast-mangle
+                           (cl-uglify-js:ast-squeeze
+                            (with-open-file (in in-path :external-format :utf-8)
+                              (parse-js:parse-js in)) :dead-code nil)) :beautify nil)
+           do
+           (let ((code (char-code c)))
+             (if (or (<= code #x1f) (>= code #x80))
+               (format t "\\u~:@(~4,'0x~)" code)
+               (write-char c)))))
+    out-path))
+
 (defmethod create-template-printer ((pathname pathname)
                                     &key (force *force-default*)
                                          (element-type #-:lispworks 'character
@@ -84,7 +102,10 @@ Keyword arguments will only be accepted if TEMPLATE is a PATHNAME."))
               ;; recursively
               (let ((*included-files* (cons merged-pathname
                                             *included-files*))
-                    (*external-format* external-format))
+                    (*external-format* external-format)
+                    (merged-pathname (if (and *uglify-js-p* (string-equal "js" (pathname-type pathname)))
+                                       (uglify-js merged-pathname)
+                                       merged-pathname)))
                 (with-open-file (*standard-input* merged-pathname
                                  :direction :input
                                  :if-does-not-exist if-does-not-exist

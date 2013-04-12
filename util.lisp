@@ -244,7 +244,7 @@ pointer."
   string)
 
 (defun read-tag-rest (&key read-attribute (intern t) (eof-action t)
-                           read-form (skip nil))
+                           ssi-p read-form (skip nil))
   "Reads the rest of a template tag from *STANDARD-INPUT* after the
 name of the tag has been read. Reads and returns
  - either the tag's Lisp form if READ-FORM is true,
@@ -261,6 +261,9 @@ and ending marker --> without error."
                       (skip-whitespace :assert t)
                       (let ((string
                              (with-syntax-error-location ()
+                               (when ssi-p
+                                 (read-while (lambda (c) (char/= c #\=)) :skip nil :eof-action eof-action)
+                                 (%read-char))
                               (read-delimited-string :eof-action
                                 (lambda (collector)
                                   (declare (ignore collector))

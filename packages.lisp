@@ -41,6 +41,7 @@
            #:*format-non-strings*
            #:*ignore-empty-lines*
            #:*no-cache-check*
+           #:*uglify-js-p*
            #:*sequences-are-lists*
            #:*string-modifier*
            #:*template-end-marker*

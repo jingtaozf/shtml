@@ -395,11 +395,13 @@ TMPL_IF or TMPL_UNLESS, a corresponding TMPL_ELSE was seen."
            ;; skip whitespace but keep it in case this turns out not
            ;; to be a template tag
            (skip-whitespace :skip nil))
+         (ssi-p nil)
          (token
            ;; read what could be a template token's name
            (with-syntax-error-location ()
              (read-while (lambda (c)
                            (or (alpha-char-p c)
+                               (char= c #\#)
                                (char= c #\_)
                                (char= c #\/)))
                          :skip nil
@@ -410,10 +412,12 @@ TMPL_IF or TMPL_UNLESS, a corresponding TMPL_ELSE was seen."
                                        (signal-template-syntax-error
                                         "EOF while inside of tag starting with ~S"
                                         *template-start-marker*))))))
-    (cond ((string-equal token "TMPL_INCLUDE")
+    (cond ((or (if (string-equal token "#include")
+                 (setf ssi-p t))
+               (string-equal token "TMPL_INCLUDE"))
             ;; TMPL_INCLUDE tag - first read the pathname which has to
             ;; follow and merge it with *DEFAULT-TEMPLATE-PATHNAME*
-            (let* ((pathname (read-tag-rest :read-attribute t :intern nil))
+            (let* ((pathname (read-tag-rest :read-attribute t :ssi-p ssi-p :intern nil))
                    (merged-pathname
                      (merge-pathnames pathname
                                       *default-template-pathname*)))

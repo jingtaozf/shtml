@@ -30,7 +30,7 @@
 (asdf:defsystem :shtml
   :version "0.10.2"
   :serial t
-  :depends-on (#+ylib ystok-library)
+  :depends-on (#+ylib ystok-library :cl-uglify-js)
   :components ((:file "packages")
                (:file "specials")
                (:file "errors")

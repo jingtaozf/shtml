@@ -94,6 +94,8 @@ TMPL_INCLUDE loops.")
 (defvar *external-format* :default
   "The external format used when opening files.")
 
+(defvar *uglify-js-p* t)
+
 (defvar *value-access-function*
   (lambda (symbol environment &optional in-loop-p)
     (let ((result #+ylib (yl:cdr-assoq symbol environment)	; getf has originally used
