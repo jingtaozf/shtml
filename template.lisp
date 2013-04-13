@@ -429,6 +429,7 @@ TMPL_IF or TMPL_UNLESS, a corresponding TMPL_ELSE was seen."
                   (signal-template-syntax-error
                    "Infinite recursion - file ~S includes itself"
                    merged-pathname)))
+              (add-template-dependence merged-pathname)
               ;; otherwise create (and cache) a template printer
               (create-template-printer merged-pathname)
               (multiple-value-bind (next-fn else-follows)

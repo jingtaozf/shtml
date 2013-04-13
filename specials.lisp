@@ -71,6 +71,9 @@ are upcased before they are interned.")
   "Controls whether the FILE-WRITE-DATE check will be circumvented
 when using FILL-AND-PRINT-TEMPLATE.")
 
+(defvar *template-dependence* (make-hash-table :test #'equal)
+  "cache templace depend on which templates")
+
 (defvar *template-symbol-package* (find-package '#:keyword)
   "The package symbols are interned into.")
 
@@ -90,6 +93,9 @@ printer is created from a pathname argument.")
 (defvar *included-files* nil
   "Internally used by CREATE-TEMPLATE-PRINTER-AUX to avoid infinite
 TMPL_INCLUDE loops.")
+
+(defvar *current-creating-template-path* nil
+  "the creating template path")
 
 (defvar *external-format* :default
   "The external format used when opening files.")

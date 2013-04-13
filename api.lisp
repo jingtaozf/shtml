@@ -93,8 +93,10 @@ Keyword arguments will only be accepted if TEMPLATE is a PATHNAME."))
                  ;; and if it's not too old (or maybe we don't have to
                  ;; check)
                  (or *no-cache-check*
-                     (and file-write-date
-                          (<= file-write-date creation-date))))
+                     (and
+                       (not (template-dependence-old-p merged-pathname))
+                       (and file-write-date
+                            (<= file-write-date creation-date)))))
         (return-from create-template-printer hashed-printer))
       (let ((new-printer
               ;; push this pathname onto stack of included files (so
@@ -102,10 +104,13 @@ Keyword arguments will only be accepted if TEMPLATE is a PATHNAME."))
               ;; recursively
               (let ((*included-files* (cons merged-pathname
                                             *included-files*))
+                    (*current-creating-template-path* merged-pathname)
                     (*external-format* external-format)
                     (merged-pathname (if (and *uglify-js-p* (string-equal "js" (pathname-type pathname)))
                                        (uglify-js merged-pathname)
                                        merged-pathname)))
+                
+                (reset-template-dependence *current-creating-template-path*)
                 (with-open-file (*standard-input* merged-pathname
                                  :direction :input
                                  :if-does-not-exist if-does-not-exist
@@ -171,6 +176,7 @@ used if TEMPLATE/PRINTER is a pathname."))
 (defun clear-template-cache ()
   "Complete clears all template printers from the cache."
   (clrhash *printer-hash*)
+  (clrhash *template-dependence*)
   (values))
 
 (defun delete-from-template-cache (pathname)

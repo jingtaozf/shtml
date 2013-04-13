@@ -360,3 +360,18 @@ character set."
   (escape-string string :test #'(lambda (char)
                                   (or (find char "<>&'\"")
                                       (> (char-code char) 127)))))
+
+(defun reset-template-dependence (path)
+  (remhash path *template-dependence*))
+(defun add-template-dependence (path)
+  (push path (gethash *current-creating-template-path* *template-dependence*)))
+(defun template-dependence-old-p (path)
+  (loop for include-path in (gethash path *template-dependence*)
+        for file-write-date = (file-write-date include-path)
+        thereis (destructuring-bind (hashed-printer . creation-date)
+                  ;; see if a printer for this pathname is in the cache
+                  (or (gethash include-path *printer-hash*)
+                      '(nil . nil))
+                  (declare (ignore hashed-printer))
+                  (or (null creation-date)
+                      (> file-write-date creation-date)))))
