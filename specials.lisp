@@ -100,7 +100,7 @@ TMPL_INCLUDE loops.")
   (lambda (symbol environment &optional in-loop-p)
     (let ((result #+ylib (yl:cdr-assoq symbol environment)	; getf has originally used
                   #-ylib (cdr (assoc symbol environment))))
-      (if (and in-loop-p template:*sequences-are-lists*)
+      (if (and in-loop-p shtml:*sequences-are-lists*)
           (loop for element in result			; keep values from upper levels
                 collect (if (consp element) (append element environment) element))
           result)))

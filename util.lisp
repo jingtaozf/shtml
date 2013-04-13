@@ -262,7 +262,7 @@ and ending marker --> without error."
                       (let ((string
                              (with-syntax-error-location ()
                                (when ssi-p
-                                 (read-while (lambda (c) (char/= c #\=)) :skip nil :eof-action eof-action)
+                                 (read-while (lambda (c) (char/= c #\=)) :skip t :eof-action eof-action)
                                  (%read-char))
                               (read-delimited-string :eof-action
                                 (lambda (collector)
