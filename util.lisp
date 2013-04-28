@@ -374,5 +374,6 @@ character set."
                       '(nil . nil))
                   (declare (ignore hashed-printer))
                   (or (null creation-date)
+                      (null file-write-date)
                       (template-dependence-old-p include-path)
                       (> file-write-date creation-date)))))
