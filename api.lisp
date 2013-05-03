@@ -56,22 +56,23 @@ Keyword arguments will only be accepted if TEMPLATE is a PATHNAME."))
     (%create-template-printer-aux nil nil)))
 
 (defun uglify-js (in-path)
-  (let ((out-path (format nil "/tmp/shtml/js-compress/~a" in-path)))
-    (ensure-directories-exist out-path)
-    (with-open-file (*standard-output* out-path
-                     :direction :output :if-does-not-exist :create :if-exists :supersede
-                     :external-format :utf-8)
-      (loop for c across (cl-uglify-js:ast-gen-code
-                          (cl-uglify-js:ast-mangle
-                           (cl-uglify-js:ast-squeeze
-                            (with-open-file (in in-path :external-format :utf-8)
-                              (parse-js:parse-js in)) :dead-code nil)) :beautify nil)
-           do
+  (bt:with-lock-held (*uglify-js-lock*)
+    (let ((out-path (format nil "/tmp/shtml/js-compress/~a" in-path)))
+      (ensure-directories-exist out-path)
+      (with-open-file (*standard-output* out-path
+                       :direction :output :if-does-not-exist :create :if-exists :supersede
+                       :external-format :utf-8)
+        (loop for c across (cl-uglify-js:ast-gen-code
+                            (cl-uglify-js:ast-mangle
+                             (cl-uglify-js:ast-squeeze
+                              (with-open-file (in in-path :external-format :utf-8)
+                                (parse-js:parse-js in)) :dead-code nil)) :beautify nil)
+              do
            (let ((code (char-code c)))
              (if (or (<= code #x1f) (>= code #x80))
                (format t "\\u~:@(~4,'0x~)" code)
                (write-char c)))))
-    out-path))
+      out-path)))
 
 (defmethod create-template-printer ((pathname pathname)
                                     &key (force *force-default*)

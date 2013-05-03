@@ -50,6 +50,7 @@
            #:*upcase-attribute-strings*
            #:*value-access-function*
            #:*warn-on-creation*
+           #:uglify-js
            #:clear-template-cache
            #:create-template-printer
            #:delete-from-template-cache

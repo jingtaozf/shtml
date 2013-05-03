@@ -101,6 +101,7 @@ TMPL_INCLUDE loops.")
   "The external format used when opening files.")
 
 (defvar *uglify-js-p* t)
+(defvar *uglify-js-lock* (bt:make-lock))
 
 (defvar *value-access-function*
   (lambda (symbol environment &optional in-loop-p)
